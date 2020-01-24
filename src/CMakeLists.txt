@@ -1,6 +1,6 @@
 set(BINARY ${CMAKE_PROJECT_NAME})
 
-add_executable(${BINARY}_run main.cpp MorseCoder.cpp MorseCoder.h)
+add_executable(${BINARY}_run main.cpp MorseCoder.cpp MorseCoder.h LetterChecker.cpp LetterChecker.h)
 
 find_package(Boost 1.7 REQUIRED)
 

@@ -5,27 +5,64 @@
 #include <vector>
 #include <fstream>
 #include <iterator>
-// boost
-#include <boost/algorithm/string.hpp>
+#include <sstream>
+#include <random>
 // local
 #include "MorseCoder.h"
+#include "LetterChecker.h"
 
 int main()
 {
 	std::ios::sync_with_stdio(false);
 
-	MorseCoder morse{};
+	std::string wordlist;
+	{
+		std::ifstream wordlistFile{ "enable1.txt" };
+		wordlist = std::string{ std::istreambuf_iterator<char>(wordlistFile), std::istreambuf_iterator<char>() };
+	}
 
-	//const std::string encoded{ morse.encode("abcdefghijklmnopqrstuvwxyz") };
-	//std::cout << encoded << '\n';
-	//std::cout << morse.decode(encoded) << '\n';
-	//std::cout << morse.encode("sos", true) << '\n';
+	MorseCoder coder{};
 
-	//std::ifstream wordlistFile{ "enable1.txt" };
+	std::vector<std::string> morseAlphabet{};
+	for (char i = 'a'; i <= 'z'; ++i)
+	{
+		morseAlphabet.push_back(coder.encode(std::string(1, i)));
+	}
 
-	//std::string wordlist{ std::istreambuf_iterator<char>(wordlistFile), std::istreambuf_iterator<char>() };
+	std::string decoded{};
+	std::vector<std::string> morseLetters{ morseAlphabet };
+	std::string encoded{ "..-...-..-....--.---.---.---..-..--....-.....-..-.--.-.-.--.-..--.--..--.----..-.." };
+	size_t pos = 0;
+	std::random_device seed;
+	std::default_random_engine shuffleEngine{ seed() };
+	while (morseLetters.size() > 0)
+	{
+		bool deadEnd = true;
+		for (int i = 0; i < morseLetters.size(); ++i)
+		{
+			const auto element{ morseLetters[i] };
+			if (element == encoded.substr(pos, element.length()))
+			{
+				decoded += coder.decode(element);
+				pos += element.length();
+				morseLetters.erase(morseLetters.begin() + i);
+				deadEnd = false;
+			}
+		}
+		if (deadEnd)
+		{
+			deadEnd = false;
+			decoded = "";
+			pos = 0;
+			morseLetters = morseAlphabet;
+			std::shuffle(morseLetters.begin(), morseLetters.end(), shuffleEngine);
+		}
+	}
 
-	std::cout << '"' << morse.encode("a") << "\"\n";
+	std::cout << "Source:\n" << encoded << '\n';
+	std::cout << "Decoded:\n" << decoded
+		<< "\nValid: " << std::boolalpha << letters::checkAlpha(decoded) << '\n';
+	std::cout << "Decoding's Encoding:\n" << coder.encode(decoded, true) << '\n';
 
 	return 0;
 }

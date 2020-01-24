@@ -15,7 +15,6 @@ public:
 	MorseCoder();
 	std::string encode(std::string text, bool smooshed = false);
 	std::string decode(std::string morse);
-private:
 	std::unordered_map<char, std::string> toMorse;
 	std::unordered_map<std::string, char> fromMorse;
 };
